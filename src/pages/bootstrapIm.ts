@@ -3,7 +3,7 @@ import loadFonts from '@helpers/dom/loadFonts';
 import {doubleRaf} from '@helpers/schedulers';
 import isNativeVoiceRecorderSupported from '@helpers/voiceRecorder/isNativeSupported';
 import rootScope from '@lib/rootScope';
-import {IS_VIYA} from '@lib/viya/constants';
+import {IS_EMBEDDED} from '@lib/embed/constants';
 
 import {disposeActiveAuthFlow} from '@/pages/mountAuthFlow';
 import {onStartImportFailed} from '@/pages/deactivatedScreen';
@@ -66,7 +66,7 @@ export async function bootstrapIm(): Promise<void> {
   // `pageIm.onFirstMount` used so the cross-fade looks right.
   disposeActiveAuthFlow(1000);
 
-  if(IS_VIYA) import('@lib/viya/tabLock').then(({onViyaSignedIn}) => onViyaSignedIn());
+  if(IS_EMBEDDED) import('@lib/embed/tabLock').then(({onHostSignedIn}) => onHostSignedIn());
 }
 
 let topLevel: Promise<typeof import('@lib/appDialogsManager')['default']>;

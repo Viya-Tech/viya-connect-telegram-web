@@ -76,6 +76,10 @@ import CommandsHelper from '@components/chat/commandsHelper';
 import AutocompleteHelperController from '@components/chat/autocompleteHelperController';
 import AutocompleteHelper from '@components/chat/autocompleteHelper';
 import MentionsHelper from '@components/chat/mentionsHelper';
+import {IS_EMBEDDED} from '@lib/embed/constants';
+import BlenoHelper from '@lib/embed/bleno/blenoHelper';
+import {blenoModeOf} from '@lib/embed/bleno/blenoMode';
+import {blenoCall} from '@lib/embed/bleno/trigger';
 import fixSafariStickyInput from '@helpers/dom/fixSafariStickyInput';
 import ReplyKeyboard from '@components/chat/replyKeyboard';
 import InlineHelper from '@components/chat/inlineHelper';
@@ -523,6 +527,8 @@ export default class ChatInput {
   private emojiHelper: EmojiHelper;
   private commandsHelper: CommandsHelper;
   private mentionsHelper: MentionsHelper;
+  // * the host app's build only: "@bleno" hands the message box over to Bleno (@lib/embed/bleno)
+  private blenoHelper?: BlenoHelper;
   private inlineHelper: InlineHelper;
   // * lowercased usernames known to be guest bots (bot_guestchat). a leading @guestbot in the
   // * composer is a plain, sendable message, not an inline query — this cache keeps typing flicker-free
@@ -1719,6 +1725,7 @@ export default class ChatInput {
     this.emojiHelper.attachStickersHelper(this.stickersHelper);
     if(!this.excludeParts.commandsHelper) this.commandsHelper = new CommandsHelper(this.rowsWrapper, this.autocompleteHelperController, this, this.managers);
     this.mentionsHelper = new MentionsHelper(this.rowsWrapper, this.autocompleteHelperController, this, this.managers);
+    if(IS_EMBEDDED) this.blenoHelper = new BlenoHelper(this.rowsWrapper, this.autocompleteHelperController, this);
     this.inlineHelper = new InlineHelper(this.rowsWrapper, this.autocompleteHelperController, this.chat, this.managers);
     this.rowsWrapper.append(this.newMessageWrapper);
 
@@ -4157,6 +4164,13 @@ export default class ChatInput {
 
     const isUserInput = !!(e?.isTrusted || (e as ChatInputEditorInputEvent)?.chatInputEditorUserInput);
 
+    // * "@bleno " typed at the start: the message box is Bleno's until its back button (the host app's build only)
+    const blenoQuestion = IS_EMBEDDED && isUserInput ? blenoCall(richValue) : null;
+    if(blenoQuestion !== null) {
+      blenoModeOf(this).enter(blenoQuestion);
+      return;
+    }
+
     const isEmpty = !richValue.trim();
     if(isEmpty) {
       if(this.lastTimeType) {
@@ -4448,6 +4462,8 @@ export default class ChatInput {
       ) {
         foundHelpers.add(this.stickersHelper);
         this.stickersHelper.checkEmoticon(value);
+      } else if(!foundHelpers.size && firstChar === '@' && this.blenoHelper?.checkQuery(query, !matches[1])) { // Bleno
+        foundHelpers.add(this.blenoHelper);
       } else if(!foundHelpers.size && firstChar === '@') { // mentions
         const topMsgId = this.chat.threadId ? getServerMessageId(this.chat.threadId) : undefined;
         // * only offer guest bots (bot_guestchat) when @ is at the very start of the message, like

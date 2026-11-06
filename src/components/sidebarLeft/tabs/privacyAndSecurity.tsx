@@ -35,7 +35,7 @@ import {renderComponent} from '@helpers/solid/renderComponent';
 import type {AppPrivacyLastSeenTab} from '@components/solidJsTabs/tabs';
 import {hotReloadGuard} from '@lib/solidjs/hotReloadGuardProvider';
 import toastError from '@components/toastError';
-import {IS_VIYA} from '@lib/viya/constants';
+import {IS_EMBEDDED} from '@lib/embed/constants';
 
 const PrivacyAndSecurity: Component = () => {
   const [tab] = useSuperTab<typeof AppPrivacyAndSecurityTab>();
@@ -229,8 +229,8 @@ const PrivacyAndSecurity: Component = () => {
                 <Row.Title>{i18n('AutoDeleteMessages')}</Row.Title>
                 <Row.Subtitle>{autoDeleteSubtitle()}</Row.Subtitle>
               </Row>
-              {/* * in Viya Connect the tab's passcode is the key Signal keeps, so it is not the person's to set */}
-              <Show when={!IS_VIYA}>
+              {/* * in the host app the tab's passcode is the key Signal keeps, so it is not the person's to set */}
+              <Show when={!IS_EMBEDDED}>
                 <Row clickable={() => !passcodeFrozen() && hotReloadGuard.tabs.AppPasscodeLockTab.openChecked(tab.slider)}>
                   <Row.Icon icon="key_filled" />
                   <Row.Title>{i18n('PasscodeLock.Item.Title')}</Row.Title>

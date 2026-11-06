@@ -347,8 +347,8 @@ port.addMultipleEventsListeners({
     await ApiManager.forceLogOutAll();
   },
 
-  // * Viya Connect signed out: every tab reloads locked, and the key goes with this worker
-  viyaLock: () => {
+  // * the host app signed out: every tab reloads locked, and the key goes with this worker
+  embedLock: () => {
     lockEveryTab();
   },
 

@@ -5211,8 +5211,14 @@
 "Text.Context.Copy.Email" = "Copy Email";
 "PasscodeLock.Title" = "Passcode";
 "PasscodeLock.Item.Title" = "Passcode Lock";
-"Viya.Locked.Title" = "Telegram is locked";
-"Viya.Locked.Text" = "Sign in to Viya Connect to open it.";
+"Embed.Locked.Title" = "Telegram is locked";
+"Embed.Locked.Text" = "Sign in to open it.";
+"Bleno.Name" = "Bleno";
+"Bleno.Suggest.Hint" = "Ask about this chat";
+"Bleno.Add" = "Add to Bleno";
+"Bleno.Suggest.Enter" = "Enter";
+"Bleno.Send.Title" = "Send to %s?";
+"Bleno.Send.Text" = "Bleno will send %s here as you.";
 "PasscodeLock.Item.On" = "On";
 "PasscodeLock.Item.Off" = "Off";
 "PasscodeLock.Description" = "When a passcode is set, a lock icon appears above your chat list. Tap it to lock your Telegram.";

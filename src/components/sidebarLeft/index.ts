@@ -97,7 +97,7 @@ import tsNow from '@helpers/tsNow';
 import {toastNew} from '@components/toast';
 import DeferredIsUsingPasscode from '@lib/passcode/deferredIsUsingPasscode';
 import createLockButton from '@components/sidebarLeft/lockButton';
-import {IS_VIYA} from '@lib/viya/constants';
+import {IS_EMBEDDED} from '@lib/embed/constants';
 import createSubmenuTrigger, {CreateSubmenuArgs} from '@components/createSubmenuTrigger';
 import ChatTypeMenu from '@components/chatTypeMenu';
 import {RequestHistoryOptions} from '@appManagers/appMessagesManager';
@@ -366,11 +366,11 @@ export class AppSidebarLeft extends SidebarSlider {
       if(isPremium) sidebarHeader.append(statusBtnIcon);
       else statusBtnIcon.remove();
 
-      // * in Viya Connect the tab locks on sign-out; the tab key is its passcode, which nobody types
-      if(isUsingPasscode && !IS_VIYA) sidebarHeader.append(lockButton.element);
+      // * in the host app the tab locks on sign-out; the tab key is its passcode, which nobody types
+      if(isUsingPasscode && !IS_EMBEDDED) sidebarHeader.append(lockButton.element);
       else lockButton.element.remove();
 
-      sidebarHeader.classList.toggle('is-input-the-last-child', !isPremium && !(isUsingPasscode && !IS_VIYA));
+      sidebarHeader.classList.toggle('is-input-the-last-child', !isPremium && !(isUsingPasscode && !IS_EMBEDDED));
     };
 
     appImManager.addEventListener('premium_toggle', onPremium);
@@ -760,8 +760,8 @@ export class AppSidebarLeft extends SidebarSlider {
       text: 'MultiAccount.AddAccount',
       onClick: this.addAccount,
       verify: async() => {
-        // * Viya Connect's tab is one Telegram account: switching would switch whose tab it is
-        if(IS_VIYA) return false;
+        // * the host app's tab is one Telegram account: switching would switch whose tab it is
+        if(IS_EMBEDDED) return false;
         const totalAccounts = await AccountController.getTotalAccounts();
         return totalAccounts < MAX_ACCOUNTS && !!(await AccountController.getFreeAccountNumber());
       }
@@ -1979,7 +1979,7 @@ export class AppSidebarLeft extends SidebarSlider {
   }
 
   public addAccount = async(e?: MouseEvent | TouchEvent) => {
-    if(IS_VIYA) return;
+    if(IS_EMBEDDED) return;
     const [totalAccounts, accountNumber] = await Promise.all([
       AccountController.getTotalAccounts(),
       AccountController.getFreeAccountNumber()
