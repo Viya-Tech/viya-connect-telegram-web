@@ -3,6 +3,7 @@ import loadFonts from '@helpers/dom/loadFonts';
 import {doubleRaf} from '@helpers/schedulers';
 import isNativeVoiceRecorderSupported from '@helpers/voiceRecorder/isNativeSupported';
 import rootScope from '@lib/rootScope';
+import {IS_VIYA} from '@lib/viya/constants';
 
 import {disposeActiveAuthFlow} from '@/pages/mountAuthFlow';
 import {onStartImportFailed} from '@/pages/deactivatedScreen';
@@ -64,6 +65,8 @@ export async function bootstrapIm(): Promise<void> {
   // Tear down the auth UI 1s after IM appears — same delay the legacy
   // `pageIm.onFirstMount` used so the cross-fade looks right.
   disposeActiveAuthFlow(1000);
+
+  if(IS_VIYA) import('@lib/viya/tabLock').then(({onViyaSignedIn}) => onViyaSignedIn());
 }
 
 let topLevel: Promise<typeof import('@lib/appDialogsManager')['default']>;

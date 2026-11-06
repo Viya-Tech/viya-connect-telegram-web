@@ -347,6 +347,11 @@ port.addMultipleEventsListeners({
     await ApiManager.forceLogOutAll();
   },
 
+  // * Viya Connect signed out: every tab reloads locked, and the key goes with this worker
+  viyaLock: () => {
+    lockEveryTab();
+  },
+
   toggleUninteruptableActivity: ({activity, active}, source) => {
     autoLockControls.toggleUninteruptableActivity(source, activity, active);
   },
@@ -401,10 +406,7 @@ function resetNotificationsCount() {
 
 const autoLockControls = useAutoLock({
   getIsLocked: () => isLocked,
-  onLock: () => {
-    mainBroadcastChannel.emitVoid('reload');
-    selfTerminate();
-  },
+  onLock: lockEveryTab,
   getPort: () => port
 });
 
@@ -468,6 +470,11 @@ export function connectInProcessTab(p: MessagePort) {
   onTabConnect(p as any);
 }
 
+
+function lockEveryTab() {
+  mainBroadcastChannel.emitVoid('reload');
+  selfTerminate();
+}
 
 function selfTerminate() {
   resetSharedObjectURLCaches();

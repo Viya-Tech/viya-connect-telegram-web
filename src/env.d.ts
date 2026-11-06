@@ -21,6 +21,9 @@ interface ImportMetaEnv {
   // injected via `define` by vite.preview.config.ts when start-preview.sh is
   // invoked with --no-worker; Modes.noWorker honours it without ?noWorker=1.
   readonly VITE_NO_WORKER?: boolean;
+  // our build only (Viya Connect's Telegram tab): '1' turns on @lib/viya
+  readonly VITE_VIYA?: string;
+  readonly VITE_VIYA_BOT_USERNAME?: string;
 }
 
 interface ImportMeta {

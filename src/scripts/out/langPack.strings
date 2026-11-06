@@ -5211,6 +5211,8 @@
 "Text.Context.Copy.Email" = "Copy Email";
 "PasscodeLock.Title" = "Passcode";
 "PasscodeLock.Item.Title" = "Passcode Lock";
+"Viya.Locked.Title" = "Telegram is locked";
+"Viya.Locked.Text" = "Sign in to Viya Connect to open it.";
 "PasscodeLock.Item.On" = "On";
 "PasscodeLock.Item.Off" = "Off";
 "PasscodeLock.Description" = "When a passcode is set, a lock icon appears above your chat list. Tap it to lock your Telegram.";

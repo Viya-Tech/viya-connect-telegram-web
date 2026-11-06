@@ -68,6 +68,7 @@ export default class MTProtoMessagePort<Master extends boolean = true> extends S
   toggleCacheStorage: (value: boolean, source: MessageEventSource) => void,
   resetEncryptableCacheStorages: () => void,
   forceLogout: () => void,
+  viyaLock: () => void,
   toggleUninteruptableActivity: (payload: {activity: string, active: boolean}, source: MessageEventSource) => void,
   disableCacheStoragesByNames: (names: CacheStorageDbName[]) => void,
   enableCacheStoragesByNames: (names: CacheStorageDbName[]) => void,
