@@ -21,11 +21,11 @@ interface ImportMetaEnv {
   // injected via `define` by vite.preview.config.ts when start-preview.sh is
   // invoked with --no-worker; Modes.noWorker honours it without ?noWorker=1.
   readonly VITE_NO_WORKER?: boolean;
-  // our build only (Viya Connect's Telegram tab): '1' turns on @lib/viya
-  readonly VITE_VIYA?: string;
-  readonly VITE_VIYA_BOT_USERNAME?: string;
-  // Viya Connect's origin when it isn't this one (the dev servers)
-  readonly VITE_VIYA_ORIGIN?: string;
+  // our build only (the host app's Telegram tab): '1' turns on @lib/embed
+  readonly VITE_EMBED?: string;
+  readonly VITE_EMBED_LINK_BOT?: string;
+  readonly VITE_EMBED_BLENO_URL?: string;
+  readonly VITE_EMBED_HOST_ORIGIN?: string;
 }
 
 interface ImportMeta {

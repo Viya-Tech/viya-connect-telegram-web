@@ -43,6 +43,9 @@ importers:
       '@ton/wallet-engine':
         specifier: https://github.com/i582/wallet-engine/releases/download/v0.0.7/ton-wallet-engine-0.0.7.tgz
         version: https://github.com/i582/wallet-engine/releases/download/v0.0.7/ton-wallet-engine-0.0.7.tgz
+      rxjs:
+        specifier: ^7.8.2
+        version: 7.8.2
     devDependencies:
       '@axe-core/playwright':
         specifier: ^4.11.3
@@ -3281,6 +3284,9 @@ packages:
   run-applescript@7.1.0:
     resolution: {integrity: sha512-DPe5pVFaAsinSaV6QjQ6gdiedWDcRCbUuiQfQa2wmWV7+xC9bGulGI8+TdRmoFkAPaBXk8CrAbnlY2ISniJ47Q==}
     engines: {node: '>=18'}
+
+  rxjs@7.8.2:
+    resolution: {integrity: sha512-dhKf903U/PQZY6boNNtAGdWbG85WAbjT/1xYoZIC7FAY0yWapOBQVsVrDl58W86//e1VpMNBtRV4MaXfdMySFA==}
 
   safe-buffer@5.2.1:
     resolution: {integrity: sha512-rp3So07KcdmmKbGvgaNxQSJr7bGVSVk5S9Eq1F+ppbRo70+YeaDxkw5Dd8NPN+GD6bjnYm2VuPuCXmpuYvmCXQ==}
@@ -6666,6 +6672,10 @@ snapshots:
       - supports-color
 
   run-applescript@7.1.0: {}
+
+  rxjs@7.8.2:
+    dependencies:
+      tslib: 2.8.1
 
   safe-buffer@5.2.1: {}
 

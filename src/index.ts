@@ -64,7 +64,7 @@ import {useMediaSizes} from '@helpers/mediaSizes';
 import useHasFoldersSidebar, {useIsSidebarCollapsed} from '@stores/foldersSidebar';
 import appNavigationController from '@components/appNavigationController';
 import {preventCrossTabDynamicImportDeadlock} from '@helpers/preventDeadlock';
-import {IS_VIYA} from '@lib/viya/constants';
+import {IS_EMBEDDED} from '@lib/embed/constants';
 import appChatBackground from '@components/chat/bubbles/chatBackground';
 
 // import commonStateStorage from '@lib/commonStateStorage';
@@ -472,10 +472,10 @@ if(import.meta.env.DEV || import.meta.env.VITE_PREVIEW) {
   // If this value is cached, and a different tab locks/unlocks, we'll see the wrong state of the app.
   await preventCrossTabDynamicImportDeadlock();
 
-  // * Viya Connect's Telegram tab opens only for whoever is signed in there (@lib/viya/tabLock)
-  if(IS_VIYA) {
-    const {waitForViyaUnlock} = await import('@lib/viya/tabLock');
-    await waitForViyaUnlock();
+  // * the host app's Telegram tab opens only for whoever is signed in there (@lib/embed/tabLock)
+  if(IS_EMBEDDED) {
+    const {waitForHostUnlock} = await import('@lib/embed/tabLock');
+    await waitForHostUnlock();
   }
 
   await PasscodeLockScreenController.waitForUnlock(async() => {

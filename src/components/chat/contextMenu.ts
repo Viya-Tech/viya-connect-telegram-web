@@ -35,6 +35,8 @@ import {attachContextMenuListener} from '@helpers/dom/attachContextMenuListener'
 import {getLinkFirstChild, holdLinkPlate} from '@helpers/dom/linkPress';
 import filterAsync from '@helpers/array/filterAsync';
 import appDownloadManager, {DownloadBlob} from '@lib/appDownloadManager';
+import {IS_EMBEDDED} from '@lib/embed/constants';
+import {blenoModeOf} from '@lib/embed/bleno/blenoMode';
 import {NULL_PEER_ID, REPLIES_PEER_ID, SERVICE_PEER_ID} from '@appManagers/constants';
 import {MessagesStorageKey, MyMessage} from '@appManagers/appMessagesManager';
 import replaceContent from '@helpers/dom/replaceContent';
@@ -1089,6 +1091,16 @@ export default class ChatContextMenu {
         this.chat.type !== ChatType.Scheduled &&
         (this.chat.bubbles.canForward(this.message) || this.chat.canSend())/* ,
       cancelEvent: true */
+    }, {
+      // * the host app's build: the message (and its file) goes into the Bleno sheet of this chat
+      icon: 'ai_filled',
+      text: 'Bleno.Add',
+      onClick: () => blenoModeOf(this.chat.input).add(this.mid),
+      verify: () => IS_EMBEDDED &&
+        this.message?._ === 'message' &&
+        this.peerId === this.chat.peerId &&
+        !!this.chat.input?.messageInput &&
+        this.chat.type !== ChatType.Scheduled
     }, {
       icon: 'bubblereply',
       text: 'ViewReplies',

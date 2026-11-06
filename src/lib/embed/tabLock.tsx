@@ -2,20 +2,20 @@ import {createRoot} from 'solid-js';
 import deferredPromise from '@helpers/cancellablePromise';
 import {hotListen} from '@helpers/hotModule';
 import pause from '@helpers/schedulers/pause';
-import {hideViyaLockedScreen, showViyaLockedScreen} from '@components/viya/lockedScreen';
+import {hideLockedScreen, showLockedScreen} from '@components/embed/lockedScreen';
 import apiManagerProxy from '@lib/apiManagerProxy';
 import commonStateStorage from '@lib/commonStateStorage';
 import {PasscodeActions, usePasscodeActions} from '@lib/passcode/actions';
 import rootScope from '@lib/rootScope';
 import LockScreenHotReloadGuardProvider from '@lib/solidjs/lockScreenHotReloadGuardProvider';
-import {getLastViyaSession, onViyaSession, sendToViya} from '@lib/viya/bridge';
-import {VIYA_SESSION_WAIT_MS} from '@lib/viya/constants';
-import {requestViyaProof} from '@lib/viya/proof';
-import type {ViyaSession} from '@lib/viya/types';
+import {getLastHostSession, onHostSession, sendToHost} from '@lib/embed/bridge';
+import {HOST_SESSION_WAIT_MS} from '@lib/embed/constants';
+import {requestLinkProof} from '@lib/embed/proof';
+import type {HostSession} from '@lib/embed/types';
 
 /**
- * The Telegram tab opens only for whoever is signed in to Viya Connect. Its stored Telegram session is encrypted with
- * Web K's own passcode lock, the passcode being a key Signal keeps for this person on this browser: Viya Connect
+ * The Telegram tab opens only for whoever is signed in to the host app. Its stored Telegram session is encrypted with
+ * Web K's own passcode lock, the passcode being a key Signal keeps for this person on this browser: the host app
  * hands it over after every sign-in, so the tab opens with no QR code, and a sign-out locks it again. Someone
  * else's key can't open it, so their sign-in wipes this browser's copy (Telegram's session itself is untouched).
  */
@@ -43,16 +43,16 @@ async function isUsingPasscode() {
   return !!settings?.passcode?.enabled;
 }
 
-/** The first session Viya Connect announces; the locked screen covers the wait when it takes a while. */
+/** The first session the host app announces; the locked screen covers the wait when it takes a while. */
 function firstSession() {
-  const deferred = deferredPromise<ViyaSession>();
-  const stop = onViyaSession((session) => {
+  const deferred = deferredPromise<HostSession>();
+  const stop = onHostSession((session) => {
     stop();
     deferred.resolve(session);
   });
-  sendToViya({type: 'ready'});
-  pause(VIYA_SESSION_WAIT_MS).then(() => {
-    if(!deferred.isFulfilled) showViyaLockedScreen();
+  sendToHost({type: 'ready'});
+  pause(HOST_SESSION_WAIT_MS).then(() => {
+    if(!deferred.isFulfilled) showLockedScreen();
   });
   return deferred;
 }
@@ -63,19 +63,19 @@ function waitForever() {
 
 /** Locks every Telegram tab of this browser: the worker reloads them and forgets the key. */
 function lockTab() {
-  showViyaLockedScreen();
-  apiManagerProxy.invokeVoid('viyaLock', undefined);
+  showLockedScreen();
+  apiManagerProxy.invokeVoid('embedLock', undefined);
 }
 
 /** Someone else's tab on this browser: drop its stored copy, then start again on the sign-in screen. */
 async function wipeTab() {
   wiping = true;
-  showViyaLockedScreen();
+  showLockedScreen();
   await apiManagerProxy.invoke('forceLogout', undefined);
 }
 
 function followSessions() {
-  onViyaSession((session) => {
+  onHostSession((session) => {
     const isOtherPerson = session.state === 'signed_out' || session.userId !== signedInUserId;
     const isNewKey = session.state === 'signed_in' && !!session.tabKey && session.tabKey !== tabKey;
     if(isOtherPerson || isNewKey) lockTab();
@@ -83,11 +83,11 @@ function followSessions() {
 }
 
 /** Runs before Web K's own unlock check: unlocks with the tab key, or keeps the tab locked until there is one. */
-export async function waitForViyaUnlock(): Promise<void> {
+export async function waitForHostUnlock(): Promise<void> {
   const session = await firstSession();
   if(session.state !== 'signed_in' || !session.tabKey) {
-    showViyaLockedScreen();
-    onViyaSession((next) => {
+    showLockedScreen();
+    onHostSession((next) => {
       if(next.state === 'signed_in' && next.tabKey) location.reload();
     });
     return waitForever();
@@ -108,7 +108,7 @@ export async function waitForViyaUnlock(): Promise<void> {
     await actions.unlockWithPasscode(tabKey);
   }
 
-  hideViyaLockedScreen();
+  hideLockedScreen();
   followSessions();
 }
 
@@ -116,7 +116,7 @@ export async function waitForViyaUnlock(): Promise<void> {
  * Signed in to Telegram (a fresh QR or phone login, or a boot that already was): encrypts the stored session with
  * the tab key, then checks this Telegram account against the one linked in Signal.
  */
-export async function onViyaSignedIn() {
+export async function onHostSignedIn() {
   if(!tabKey) return;
 
   const usingPasscode = await isUsingPasscode();
@@ -124,21 +124,21 @@ export async function onViyaSignedIn() {
     await passcodeActions().enablePasscode(tabKey);
   }
 
-  const session = getLastViyaSession();
+  const session = getLastHostSession();
   if(session?.state !== 'signed_in') return;
 
   const myId = String(rootScope.myId);
   if(session.telegramId === myId) return;
   if(session.telegramId) {
-    sendToViya({type: 'wrong-account'});
+    sendToHost({type: 'wrong-account'});
     return;
   }
 
-  const proof = await requestViyaProof();
-  if(proof) sendToViya({type: 'link-offer', ...proof});
+  const proof = await requestLinkProof();
+  if(proof) sendToHost({type: 'link-offer', ...proof});
 }
 
 // * Telegram ended this tab's session: signing out of one signs out of all three
 hotListen(import.meta.hot, rootScope, 'logging_out', () => {
-  if(!wiping) sendToViya({type: 'signed-out'});
+  if(!wiping) sendToHost({type: 'signed-out'});
 });

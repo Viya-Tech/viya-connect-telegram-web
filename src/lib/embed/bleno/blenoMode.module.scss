@@ -1,0 +1,118 @@
+@use "../../../scss/mixins" as *;
+@use "../../../scss/partials/chatVariables" as *;
+
+// * Bleno mode: Telegram's input bar fades out and Bleno's card fades in where it was, growing up over the chat
+// * as the talk grows. The card itself (its border, radius and shadow) is drawn by Bleno, in its own design tokens.
+.host {
+  position: relative;
+}
+
+.row {
+  @include animation-level-global(1) {
+    transition: opacity 120ms ease;
+  }
+}
+
+.hiddenRow {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.card {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 3;
+  height: var(--bleno-card-height, 100%);
+  min-height: 100%;
+  opacity: 0;
+  pointer-events: none;
+
+  &[data-phase='open'] {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  &[data-phase='closed'] {
+    visibility: hidden;
+  }
+
+  @include animation-level-global(1) {
+    transition: opacity 120ms ease, height 200ms ease;
+
+    &[data-phase='open'] {
+      transition: opacity 180ms ease, height 200ms ease;
+    }
+  }
+
+  @include animation-level-global(2) {
+    transform: translateY(6px);
+
+    &[data-phase='open'] {
+      transform: none;
+      transition: opacity 180ms ease, transform 180ms ease, height 200ms ease;
+    }
+  }
+}
+
+.frame {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: transparent;
+  color-scheme: normal;
+}
+
+.logo {
+  display: block;
+  flex: 0 0 auto;
+  object-fit: contain;
+
+  :global(html.night) & {
+    filter: invert(1);
+  }
+}
+
+// * the @ list's Bleno row: a whole row across the input, of Telegram's helper-row height
+.helper {
+  inset-inline: 0 !important;
+  width: auto !important;
+
+  // * the popup is a flex row that sizes its list to the content: the list and its row take the whole width,
+  // * so the hover grey reaches the end
+  :global(.autocomplete-peer-helper-list) {
+    flex: 1 1 auto;
+    width: 100%;
+    padding: 0;
+  }
+
+  :global(.autocomplete-peer-helper-list-element) {
+    width: 100%;
+    height: $chat-helper-size;
+    padding-inline: .75rem;
+  }
+}
+
+.avatar {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--light-filled-secondary-text-color, rgba(112, 117, 121, .08));
+}
+
+.avatarLogo {
+  width: 1.125rem;
+  height: 1.125rem;
+}
+
+.hint {
+  margin-inline-start: auto;
+  flex: 0 0 auto;
+  padding-inline-start: .75rem;
+  color: var(--secondary-text-color);
+  font-size: .875rem;
+}
