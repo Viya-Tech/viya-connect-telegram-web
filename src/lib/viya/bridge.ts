@@ -1,7 +1,7 @@
 import {hotEffect} from '@helpers/hotModule';
 import {randomLong} from '@helpers/random';
 
-import {TELEGRAM_SOURCE, VIYA_CHANNEL, VIYA_SEEN_IDS_LIMIT, VIYA_SOURCE} from '@lib/viya/constants';
+import {TELEGRAM_SOURCE, VIYA_CHANNEL, VIYA_ORIGIN, VIYA_SEEN_IDS_LIMIT, VIYA_SOURCE} from '@lib/viya/constants';
 import type {ViyaOutgoing, ViyaSession} from '@lib/viya/types';
 
 const seenIds: string[] = [];
@@ -34,7 +34,7 @@ function toSession(data: any): ViyaSession {
   };
 }
 
-/** Only Viya Connect's own `session` messages, from this origin, each once. */
+/** Only Viya Connect's own `session` messages, from its origin, each once. */
 function onMessage(data: any) {
   if(data?.source !== VIYA_SOURCE || data.type !== 'session' || typeof data.id !== 'string') return;
   if(!firstDelivery(data.id)) return;
@@ -48,7 +48,7 @@ function onMessage(data: any) {
 
 hotEffect(import.meta.hot, () => {
   const onWindowMessage = (event: MessageEvent) => {
-    if(event.origin === location.origin) onMessage(event.data);
+    if(event.origin === VIYA_ORIGIN) onMessage(event.data);
   };
   const onChannelMessage = (event: MessageEvent) => onMessage(event.data);
 
@@ -68,7 +68,7 @@ export function sendToViya(message: ViyaOutgoing) {
   const payload = {source: TELEGRAM_SOURCE, id: randomLong(), ...message};
   for(const target of [window.parent !== window ? window.parent : undefined, window.opener as Window]) {
     try {
-      target?.postMessage(payload, location.origin);
+      target?.postMessage(payload, VIYA_ORIGIN);
     } catch(err) {
       // * the opener navigated away or closed: the channel still carries it
     }

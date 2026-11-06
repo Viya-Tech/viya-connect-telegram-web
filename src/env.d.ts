@@ -24,6 +24,8 @@ interface ImportMetaEnv {
   // our build only (Viya Connect's Telegram tab): '1' turns on @lib/viya
   readonly VITE_VIYA?: string;
   readonly VITE_VIYA_BOT_USERNAME?: string;
+  // Viya Connect's origin when it isn't this one (the dev servers)
+  readonly VITE_VIYA_ORIGIN?: string;
 }
 
 interface ImportMeta {

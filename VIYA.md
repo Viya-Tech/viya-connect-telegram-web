@@ -2,7 +2,7 @@
 
 This is a modified version of [Telegram Web K](https://github.com/morethanwords/tweb), changed by Viya-Tech starting 2026-11-06. It is released under the same GPL-3.0 licence (`LICENSE`). Upstream's work is unchanged except for the files listed below.
 
-The changes switch on only with `VITE_VIYA=1`. Without it, the app is the upstream client.
+The changes switch on only with `VITE_VIYA=1`. Without it, the app is the upstream client. In development, where Viya Connect and the tab run on separate dev servers, `VITE_VIYA_ORIGIN` names Viya Connect's origin.
 
 ## What it does
 The app runs as the Telegram tab inside Viya Connect, on the same origin.
