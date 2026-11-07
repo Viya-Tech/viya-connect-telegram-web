@@ -80,6 +80,7 @@ import {IS_EMBEDDED} from '@lib/embed/constants';
 import BlenoHelper from '@lib/embed/bleno/blenoHelper';
 import {blenoModeOf} from '@lib/embed/bleno/blenoMode';
 import {blenoCall} from '@lib/embed/bleno/trigger';
+import {watchTyping} from '@lib/embed/bleno/typedInput';
 import fixSafariStickyInput from '@helpers/dom/fixSafariStickyInput';
 import ReplyKeyboard from '@components/chat/replyKeyboard';
 import InlineHelper from '@components/chat/inlineHelper';
@@ -529,6 +530,7 @@ export default class ChatInput {
   private mentionsHelper: MentionsHelper;
   // * the host app's build only: "@bleno" hands the message box over to Bleno (@lib/embed/bleno)
   private blenoHelper?: BlenoHelper;
+  private blenoTyped?: () => boolean;
   private inlineHelper: InlineHelper;
   // * lowercased usernames known to be guest bots (bot_guestchat). a leading @guestbot in the
   // * composer is a plain, sendable message, not an inline query — this cache keeps typing flicker-free
@@ -1725,7 +1727,10 @@ export default class ChatInput {
     this.emojiHelper.attachStickersHelper(this.stickersHelper);
     if(!this.excludeParts.commandsHelper) this.commandsHelper = new CommandsHelper(this.rowsWrapper, this.autocompleteHelperController, this, this.managers);
     this.mentionsHelper = new MentionsHelper(this.rowsWrapper, this.autocompleteHelperController, this, this.managers);
-    if(IS_EMBEDDED) this.blenoHelper = new BlenoHelper(this.rowsWrapper, this.autocompleteHelperController, this);
+    if(IS_EMBEDDED) {
+      this.blenoHelper = new BlenoHelper(this.rowsWrapper, this.autocompleteHelperController, this);
+      this.blenoTyped = watchTyping(this.rowsWrapper, this.listenerSetter);
+    }
     this.inlineHelper = new InlineHelper(this.rowsWrapper, this.autocompleteHelperController, this.chat, this.managers);
     this.rowsWrapper.append(this.newMessageWrapper);
 
@@ -4165,7 +4170,8 @@ export default class ChatInput {
     const isUserInput = !!(e?.isTrusted || (e as ChatInputEditorInputEvent)?.chatInputEditorUserInput);
 
     // * "@bleno " typed at the start: the message box is Bleno's until its back button (the host app's build only)
-    const blenoQuestion = IS_EMBEDDED && isUserInput ? blenoCall(richValue) : null;
+    // * the editor's own input event rarely says it was typed, so the tab watches for typing itself (typedInput.ts)
+    const blenoQuestion = IS_EMBEDDED && (isUserInput || this.blenoTyped?.()) ? blenoCall(richValue) : null;
     if(blenoQuestion !== null) {
       blenoModeOf(this).enter(blenoQuestion);
       return;

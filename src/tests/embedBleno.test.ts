@@ -1,8 +1,10 @@
-import {describe, expect, it} from 'vitest';
+import {describe, expect, it, vi} from 'vitest';
 import {blenoCall, offersBleno, withoutAtToken} from '@lib/embed/bleno/trigger';
 import {fileRefusal} from '@lib/embed/bleno/fileRules';
 import {parseSheetMessage} from '@lib/embed/bleno/sheetChannel';
-import {FILE_MAX_BYTES, FILE_TOO_BIG, FILE_TYPE_REFUSED} from '@lib/embed/bleno/constants';
+import {FILE_MAX_BYTES, FILE_TOO_BIG, FILE_TYPE_REFUSED, TYPED_INPUT_WINDOW_MS} from '@lib/embed/bleno/constants';
+import {typingClock, watchTyping} from '@lib/embed/bleno/typedInput';
+import ListenerSetter from '@helpers/listenerSetter';
 
 describe('Bleno trigger', () => {
   it('offers Bleno for "@bl…" at the start only', () => {
@@ -23,6 +25,33 @@ describe('Bleno trigger', () => {
   it('gives back the draft without the @ being typed', () => {
     expect(withoutAtToken('see this @bl')).toBe('see this');
     expect(withoutAtToken('@bl')).toBe('');
+  });
+});
+
+describe('Bleno typing', () => {
+  it('counts a change as typed only shortly after the browser\'s own input event', () => {
+    vi.useFakeTimers();
+    const clock = typingClock();
+    expect(clock.typed()).toBe(false);
+    // * the editor's re-sent event is not the person's
+    clock.mark({isTrusted: false});
+    expect(clock.typed()).toBe(false);
+    clock.mark({isTrusted: true});
+    expect(clock.typed()).toBe(true);
+    vi.advanceTimersByTime(TYPED_INPUT_WINDOW_MS);
+    expect(clock.typed()).toBe(false);
+    vi.useRealTimers();
+  });
+
+  it('ignores events a script sends the message box', () => {
+    const around = document.createElement('div');
+    const field = document.createElement('div');
+    around.append(field);
+    const listenerSetter = new ListenerSetter();
+    const typed = watchTyping(around, listenerSetter);
+    field.dispatchEvent(new Event('input', {bubbles: true}));
+    expect(typed()).toBe(false);
+    listenerSetter.removeAll();
   });
 });
 

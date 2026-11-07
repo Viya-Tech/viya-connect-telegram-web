@@ -4,6 +4,8 @@ export const BLENO_HANDLE = '@bleno';
 export const BLENO_MIN_QUERY = 3;
 /** "@bleno " followed by a question: everything after the handle and its space. */
 export const BLENO_CALL = /^@bleno\s+([\s\S]*)$/i;
+/** A change to the message box this soon after the browser's own typing event counts as typed (`typedInput.ts`). */
+export const TYPED_INPUT_WINDOW_MS = 1000;
 /** What's left of the draft once the @ token being typed at its end is taken off. */
 export const TRAILING_AT_TOKEN = /(^|\s)@\S*$/;
 

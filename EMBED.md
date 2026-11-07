@@ -25,15 +25,15 @@ The app runs as the Telegram tab inside a host app, on the same origin. In devel
 ## Files
 - **New:**
   - `src/lib/embed/`: `constants.ts`, `types.ts`, `bridge.ts` (messages to and from the host), `tabLock.tsx`, `proof.ts`
-  - `src/lib/embed/bleno/`: `blenoMode.ts` (the swap, the card and every flow, as RxJS streams), `sheetChannel.ts` (the frame's messages, checked), `chatContext.ts`, `chatFile.ts`, `fileRules.ts`, `postBack.ts`, `blenoHelper.ts` (the @ row), `blenoLogo.ts`, `blenoUrls.ts`, `trigger.ts`, `constants.ts`, `types.ts`, `blenoMode.module.scss`
+  - `src/lib/embed/bleno/`: `blenoMode.ts` (the swap, the card and every flow, as RxJS streams), `sheetChannel.ts` (the frame's messages, checked), `chatContext.ts`, `chatFile.ts`, `fileRules.ts`, `postBack.ts`, `blenoHelper.ts` (the @ row), `blenoLogo.ts`, `blenoUrls.ts`, `trigger.ts`, `typedInput.ts` (whether a change was typed: the editor's own input event doesn't say), `constants.ts`, `types.ts`, `blenoMode.module.scss`
   - `src/components/embed/lockedScreen.*`
-  - `src/tests/embedBleno.test.ts`
+  - `src/tests/embedBleno.test.ts`, `e2e/chatInputEditorBlenoTyping.spec.ts` (the editor suite: typing reaches the box as a trusted event before the editor's own)
 - **Changed:**
   - `src/index.ts`: the gate before the passcode check
   - `src/pages/bootstrapIm.ts`: the after-sign-in check
   - `src/lib/mainWorker/index.worker.ts` and `mainMessagePort.ts`: the `embedLock` task, sharing auto-lock's code
   - `src/components/sidebarLeft/index.ts` and `src/components/sidebarLeft/tabs/privacyAndSecurity.tsx`
-  - `src/components/chat/input.ts`: the Bleno helper, the `@bleno ` call and the @ branch
+  - `src/components/chat/input.ts`: the Bleno helper, the `@bleno ` call (typed only, `watchTyping`) and the @ branch
   - `src/components/chat/contextMenu.ts`: "Add to Bleno"
   - `src/lang.ts`: the `Embed.*` and `Bleno.*` strings
   - `src/env.d.ts`, `package.json` (`rxjs`)
