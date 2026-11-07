@@ -26,4 +26,8 @@ export type HostOutgoing = {
 } | {
   /** Signed in to a Telegram account other than the linked one. */
   type: 'wrong-account'
+} | {
+  /** Opening the saved session stopped at `step` (it took too long): the tab shows Try again and Reset. */
+  type: 'stuck',
+  step: string
 };

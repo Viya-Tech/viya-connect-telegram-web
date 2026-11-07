@@ -461,6 +461,12 @@ if(import.meta.env.DEV || import.meta.env.VITE_PREVIEW) {
   // has loaded yet then
   setHotReloadGuardLoader(() => import('./pages/bootstrapIm').then(({importAppTopLevel}) => importAppTopLevel()));
 
+  // * the host app's Telegram tab draws "Opening Telegram…" from the start, never a blank pane (@lib/embed/tabLock)
+  if(IS_EMBEDDED) {
+    console.info('[EMBED] boot: start');
+    import('@components/embed/lockedScreen').then(({showLockedScreen}) => showLockedScreen('opening'));
+  }
+
   rootScope.managers = getProxiedManagers();
   await checkLastActiveAccountFromTMe();
 
@@ -474,6 +480,7 @@ if(import.meta.env.DEV || import.meta.env.VITE_PREVIEW) {
 
   // * the host app's Telegram tab opens only for whoever is signed in there (@lib/embed/tabLock)
   if(IS_EMBEDDED) {
+    console.info('[EMBED] boot: start-up done, opening the tab');
     const {waitForHostUnlock} = await import('@lib/embed/tabLock');
     await waitForHostUnlock();
   }

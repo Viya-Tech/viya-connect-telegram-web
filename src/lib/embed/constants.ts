@@ -22,3 +22,19 @@ export const HOST_SEEN_IDS_LIMIT = 64;
 export const HOST_SESSION_WAIT_MS = 1500;
 /** Where the mini app proof sits in the URL Telegram returns for a web app. */
 export const WEB_APP_DATA_PARAM = 'tgWebAppData';
+/** How long one step of opening the saved session (the settings read, the key check, the unlock, the wipe) may take. */
+export const EMBED_STEP_TIMEOUT_MS = 10_000;
+/** After a wipe's log out, how long to wait for the reload it brings before clearing the storage here. */
+export const EMBED_WIPE_RELOAD_WAIT_MS = 4000;
+/** Web K's stored state: its CacheStorage caches, IndexedDB databases and (unprefixed, `t_` on test servers) localStorage keys. */
+export const EMBED_CACHE_NAMES: readonly string[] = [
+  'cachedAssets',
+  'cachedFiles',
+  'cachedBackgrounds',
+  'cachedStreamChunks',
+  'cachedHlsStreamChunks',
+  'cachedHlsQualityFiles'
+];
+export const EMBED_DATABASE = /^(telegram|tweb|tweb-common|tweb-account-\d+)$/;
+export const EMBED_STORAGE_KEY =
+  /^(t_)?(state_id|account\d|encryption_key|server_time_offset|xt_instance|kz_version|tgme_sync|k_build|number_of_accounts|previous_account|current_account|should_animate_main|dc|user_auth|dc\d_(auth_key|server_salt|hash)|auth_key_fingerprint|experimental_flags)$/;

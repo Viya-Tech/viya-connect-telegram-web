@@ -10,6 +10,10 @@ The app runs as the Telegram tab inside a host app, on the same origin. In devel
   - The passcode is a key the host's backend keeps for this person on this browser. The host hands it over after every sign-in, so the tab opens without a QR code.
   - Signing out of the host locks every Telegram tab of the browser.
   - If someone else signs in on that browser, their key can't open the stored session, so it's wiped. Telegram's session on the server isn't touched.
+  - **Never a blank tab.** "Opening Telegram…" shows from the start of boot until the tab is unlocked. Each step after the host's session arrives (the settings read, the key check, the unlock, the wipe) has 10 s (`timedStep`). One that doesn't answer (a database another tab or an old worker holds open, a worker that never replies) shows "Telegram couldn't open its saved session" with Try again and Reset Telegram tab, and tells the host (`stuck`).
+  - **Reset** (`resetTab.ts`): stops this tab's worker, then deletes Web K's service workers (under its own path), caches, IndexedDB databases and localStorage keys, and reloads. That signs this browser out of Telegram, not Telegram's session on the server. The host app's own storage is never touched. While another tab holds a database open it says "Close this app's other tabs to finish", and finishes once they're closed.
+  - **A wipe that doesn't reload** (the worker's log out never brings the reload) is finished the same way a few seconds later.
+  - Every step logs to the console as `[EMBED] <step>: …`, so a pasted console says where opening stopped.
 - **One sign-out for everything.** When Telegram ends the tab's session (you log out, or terminate the session from your phone), the tab tells the host, which signs out everywhere.
 - **Linking.** After a Telegram login, the tab compares the account with the one the host has linked.
   - If nothing is linked, it asks Telegram for the bot's mini-app proof (`initData`, set with `VITE_EMBED_LINK_BOT`) and offers it to the host.
@@ -24,12 +28,12 @@ The app runs as the Telegram tab inside a host app, on the same origin. In devel
 
 ## Files
 - **New:**
-  - `src/lib/embed/`: `constants.ts`, `types.ts`, `bridge.ts` (messages to and from the host), `tabLock.tsx`, `proof.ts`
+  - `src/lib/embed/`: `constants.ts`, `types.ts`, `bridge.ts` (messages to and from the host), `tabLock.tsx`, `steps.ts` (time limits and `[EMBED]` logs), `resetTab.ts`, `proof.ts`
   - `src/lib/embed/bleno/`: `blenoMode.ts` (the swap, the card and every flow, as RxJS streams), `sheetChannel.ts` (the frame's messages, checked), `chatContext.ts`, `chatFile.ts`, `fileRules.ts`, `postBack.ts`, `blenoHelper.ts` (the @ row), `blenoLogo.ts`, `blenoUrls.ts`, `trigger.ts`, `typedInput.ts` (whether a change was typed: the editor's own input event doesn't say), `constants.ts`, `types.ts`, `blenoMode.module.scss`
   - `src/components/embed/lockedScreen.*`
-  - `src/tests/embedBleno.test.ts`, `e2e/chatInputEditorBlenoTyping.spec.ts` (the editor suite: typing reaches the box as a trusted event before the editor's own)
+  - `src/tests/embedBleno.test.ts`, `src/tests/embedTabLock.test.ts`, `e2e/chatInputEditorBlenoTyping.spec.ts` (the editor suite: typing reaches the box as a trusted event before the editor's own)
 - **Changed:**
-  - `src/index.ts`: the gate before the passcode check
+  - `src/index.ts`: the gate before the passcode check, and "Opening Telegram…" from the start of boot
   - `src/pages/bootstrapIm.ts`: the after-sign-in check
   - `src/lib/mainWorker/index.worker.ts` and `mainMessagePort.ts`: the `embedLock` task, sharing auto-lock's code
   - `src/components/sidebarLeft/index.ts` and `src/components/sidebarLeft/tabs/privacyAndSecurity.tsx`
